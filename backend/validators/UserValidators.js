@@ -46,7 +46,30 @@ const registerUserValidator = (req, res, next) => {
     });
 };
 
-const editUserValidator = (req, res, next) => {};
+const editUserValidator = (req, res, next) => {
+  let schema = yup.object().shape({
+    firstName: yup.string(),
+    lastName: yup.string(),
+    avatar: yup.string(),
+    dob: yup.date(),
+    country: yup.string(),
+    gender: yup.string().oneOf(["Female", "Male", "Other"]),
+    phone: yup.number(),
+    description: yup.string(),
+  });
+
+  schema
+    .validate(req.body)
+    .then(() => {
+      next();
+    })
+    .catch((e) => {
+      res.status(400).json({
+        success: false,
+        errors: e.errors,
+      });
+    });
+};
 
 module.exports = {
   loginUserValidator,

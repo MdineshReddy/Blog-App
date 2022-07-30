@@ -13,11 +13,10 @@ const {
   registerUserValidator,
   editUserValidator,
 } = require("../validators/UserValidators");
-const validateToken = require("../middleware/validateToken");
+const validateToken = require("../middleware/validateUserToken");
+const validateSiteToken = require("../middleware/validateSiteToken");
 
-router.get("/", (req, res) => {
-  res.send("<h1>User Routes</h1>");
-});
+router.get("/", validateSiteToken, fetchAllUsers);
 
 router.post("/login", loginUserValidator, loginUser);
 
@@ -25,9 +24,8 @@ router.post("/register", registerUserValidator, registerUser);
 
 router
   .route("/:id")
-  .get(validateToken, fetchUser)
-  .delete(validateToken, deleteUser);
-
-router.post("/edit", validateToken, editUserValidator, editUser);
+  .get(validateSiteToken, fetchUser)
+  .delete(validateToken, deleteUser)
+  .patch(validateToken, editUserValidator, editUser);
 
 module.exports = router;

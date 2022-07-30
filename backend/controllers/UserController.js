@@ -52,13 +52,86 @@ const registerUser = async (req, res) => {
   }
 };
 
-const fetchUser = async (req, res) => {};
+const fetchUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    if (user) {
+      res.status(200).json({ success: true, data: user });
+    } else {
+      throw new Error("No User found with that ID!");
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ success: false, error: e.message });
+  }
+};
 
-const fetchAllUsers = async (req, res) => {};
+const fetchAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json({ success: true, data: users });
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ success: false, error: e.message });
+  }
+};
 
-const editUser = async (req, res) => {};
+const editUser = async (req, res) => {
+  const { id } = req.params;
+  const body = req.body;
 
-const deleteUser = async (req, res) => {};
+  try {
+    const userExists = await User.findById(id);
+    if (userExists) {
+      if (id === req.user) {
+        userExists.firstName = body.firstName || userExists.firstName;
+        userExists.lastName = body.lastName || userExists.lastName;
+        userExists.dob = body.dob || userExists.dob;
+        userExists.country = body.country || userExists.country;
+        userExists.gender = body.gender || userExists.gender;
+        userExists.description = body.description || userExists.description;
+        userExists.avatar = body.avatar || userExists.avatar;
+        userExists.phone = body.phone || body.phone;
+
+        await userExists.save();
+
+        res.status(200).json({
+          success: true,
+          message: "User Updated Successfully",
+        });
+      } else {
+        throw new Error("You can only Edit your Account!");
+      }
+    } else {
+      throw new Error("User Does not Exist!");
+    }
+  } catch (e) {
+    res.status(400).json({ success: false, error: e.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userExists = await User.findById(id);
+    if (userExists) {
+      if (id === req.user) {
+        await userExists.delete();
+        res.status(200).json({
+          success: true,
+          message: "User Deleted Successfully",
+        });
+      } else {
+        throw new Error("You can only delete your Account!");
+      }
+    } else {
+      throw new Error("User Does not Exist!");
+    }
+  } catch (e) {
+    res.status(400).json({ success: false, error: e.message });
+  }
+};
 
 module.exports = {
   loginUser,
